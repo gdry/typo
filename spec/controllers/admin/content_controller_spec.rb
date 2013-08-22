@@ -1,5 +1,5 @@
 require 'spec_helper'
-require 'ruby-debug'
+#require 'ruby-debug'
 
 describe Admin::ContentController do
   render_views

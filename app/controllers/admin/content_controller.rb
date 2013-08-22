@@ -1,5 +1,5 @@
 require 'base64'
-require 'ruby-debug'
+#require 'ruby-debug'
 
 module Admin; end
 class Admin::ContentController < Admin::BaseController

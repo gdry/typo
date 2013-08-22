@@ -1,6 +1,7 @@
 # coding: utf-8
 require 'uri'
 require 'net/http'
+#require 'ruby-debug'
 
 class Article < Content
   include TypoGuid

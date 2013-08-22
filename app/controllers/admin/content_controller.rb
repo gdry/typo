@@ -1,4 +1,5 @@
 require 'base64'
+require 'ruby-debug'
 
 module Admin; end
 class Admin::ContentController < Admin::BaseController
@@ -7,7 +8,20 @@ class Admin::ContentController < Admin::BaseController
   cache_sweeper :blog_sweeper
 
   def merge
-
+    @article_id = params[:id]
+    @article_to_merge_id = params[:merge_with]
+    if current_user.admin?
+      @article = Article.find_by_id(@article_id)
+      @merged_article = @article.merge_with(@article_to_merge_id)
+      if @merged_article == nil
+        flash[:error] = "Problem with Article ID to be merged.  Please check its valid."
+      end
+    else
+        flash[:notice] = "You need admin privileges to merge articles."
+        return redirect_to :action => 'index'
+    end
+    redirect_to "admin/content/edit/#{@merged_article.id}"
+    #redirect_to :action => :edit, :id => @merged_article.id
   end
 
   def auto_complete_for_article_keywords

@@ -1,7 +1,63 @@
- require 'spec_helper'
+require 'spec_helper'
+require 'ruby-debug'
 
 describe Admin::ContentController do
   render_views
+
+  describe 'as a blog administrator' do
+
+    describe 'merge action' do
+
+      before :each do
+        Factory(:blog)
+        @user = Factory(:user, :profile => Factory(:profile_admin, :label => Profile::ADMIN))
+        request.session = { :user => @user.id }
+        @article = Factory(:article, :body => 'Clapham', :state => 'draft')
+        @am1 = Factory(:article, :body => 'South', :state => 'draft')
+      end
+
+      it 'should call method to merge articles' do
+        @mock_controller = mock("ApplicationController") 
+        @mock_controller.stub(:current_user).and_return(@user).stub(:admin?).and_return(true)         
+        Article.stub!(:find_by_id).with(@article.id).and_return(@article)
+        @article.stub!(:merge_with).with(@am1.id).and_return(@article)
+        put :merge, {:id => @article.id, :merge_with => @am1.id}
+      end
+
+      it 'should create admin merge routing for articles' do
+        { :post => '/admin/content/merge/1'}.should route_to("admin/content#merge", :id => "1")
+      end
+
+      it 'should render the edit partial' do
+        put :edit, {:id => @article.id}
+        response.should have_selector('form input#merge_with')
+      end
+
+      it 'should call method to merge articles and redirect' do
+        put :merge, {:id => @article.id, :merge_with => @am1.id}
+        response.should redirect_to("admin/content/edit/#{@article.id}") 
+      end
+
+      it 'should respond to a simple request' do
+        put :index
+        response.body.should include("Manage articles")
+      end
+
+      #it 'should post new articles' do
+      #  pending
+      #end
+
+      #it 'should post comments on articles' do
+      #  pending
+      #end
+
+      #it 'should create blog publisher users' do
+      #  pending
+      #end
+
+    end
+
+  end
 
   # Like it's a shared, need call everywhere
   shared_examples_for 'index action' do
